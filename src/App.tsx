@@ -12,6 +12,7 @@ function App() {
   let [selectedContentIndex, setSelectedContentIndex] = useState<number | null>(
     null
   );
+  let [newContent, setNewContent] = useState("");
 
   function onClickEditContent() {
     // let copy = [...contentList];
@@ -40,6 +41,27 @@ function App() {
     setSelectedContentIndex(index);
   }
 
+  function onChangeInput(e: React.ChangeEvent<HTMLInputElement>) {
+    setNewContent(e.target.value);
+  }
+
+  function onClickAddContent() {
+    setContentList((prev) => {
+      const copy = [...prev];
+      copy.splice(0, 0, newContent);
+      return copy;
+    });
+    setNewContent("");
+  }
+
+  function onClickDeleteContent(targetIndex: number) {
+    setContentList((prev) => {
+      const copy = [...prev];
+      copy.splice(targetIndex, 1);
+      return copy;
+    });
+  }
+
   return (
     <div className="App">
       <div className="black-nav">
@@ -63,8 +85,11 @@ function App() {
           </h4>
           <Like />
           <p>{`${new Date()} 발행`}</p>
+          <button onClick={() => onClickDeleteContent(index)}>삭제</button>
         </div>
       ))}
+      <input value={newContent} onChange={onChangeInput} />
+      <button onClick={onClickAddContent}>콘텐츠 추가</button>
       {isModalOpen && (
         <Modal
           content={
