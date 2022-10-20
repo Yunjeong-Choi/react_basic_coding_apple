@@ -4,9 +4,9 @@ import "./App.css";
 function App() {
   let title = "왕 나도 리액트 공부한다.";
   let [contentList, setContentList] = useState([
-    "나는 최윤정",
-    "유후유후",
-    "가나초코렡",
+    { title: "나는 최윤정", createdAt: "2022,10,17" },
+    { title: "유후유후", createdAt: "2022,10,17" },
+    { title: "가나초코렡", createdAt: "2022,10,17" },
   ]);
   let [isModalOpen, setIsModalOpen] = useState(false);
   let [selectedContentIndex, setSelectedContentIndex] = useState<number | null>(
@@ -20,8 +20,12 @@ function App() {
     // setContentList(copy);
 
     setContentList((prev) => {
+      if (selectedContentIndex === null) {
+        return prev;
+      }
+
       const copy = [...prev];
-      copy[0] = "나는 최윤정, who is hungry";
+      copy[selectedContentIndex].title = `who is hungry`;
 
       return copy;
     });
@@ -46,12 +50,14 @@ function App() {
   }
 
   function onClickAddContent() {
-    setContentList((prev) => {
-      const copy = [...prev];
-      copy.splice(0, 0, newContent);
-      return copy;
-    });
-    setNewContent("");
+    if (newContent) {
+      setContentList((prev) => {
+        const copy = [...prev];
+        copy.unshift({ title: newContent, createdAt: new Date().toString() });
+        return copy;
+      });
+      setNewContent("");
+    }
   }
 
   function onClickDeleteContent(targetIndex: number) {
@@ -76,15 +82,15 @@ function App() {
         <p>{`${new Date()} 발행`}</p>
       </div> */}
       {contentList.map((content, index) => (
-        <div key={content} className="item">
+        <div key={content.title} className="item">
           <h4
             style={{ color: "crimson" }}
             onClick={() => onClickContent(index)}
           >
-            {content}
+            {content.title}
           </h4>
           <Like />
-          <p>{`${new Date()} 발행`}</p>
+          <p>{`${new Date(content.createdAt)} 발행`}</p>
           <button onClick={() => onClickDeleteContent(index)}>삭제</button>
         </div>
       ))}
@@ -113,11 +119,17 @@ function Like() {
   return <span onClick={onClickLike}>👍{like}</span>;
 }
 
-function Modal(props: { content?: string; onClickEditContent: () => void }) {
+function Modal(props: {
+  content?: { title: string; createdAt: string };
+  onClickEditContent: () => void;
+}) {
+  if (!props.content) {
+    return null;
+  }
   return (
     <div className="modal">
-      <h4>{props.content}</h4>
-      <p>날짜</p>
+      <h4>{props.content.title}</h4>
+      <p>{`날짜: ${new Date(props.content.createdAt)}`}</p>
       <p>상세내용</p>
       <button onClick={props.onClickEditContent}>글수정</button>
     </div>
